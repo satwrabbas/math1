@@ -37,59 +37,82 @@ const LessonItem: React.FC<{ lesson: Lesson; unitId: string }> = ({ lesson, unit
   };
 
   return (
-    <div className="p-4 border-b border-slate-200 dark:border-slate-700 last:border-b-0 space-y-4">
-      <div className="flex items-center space-x-4 space-x-reverse">
-        <CustomCheckbox checked={lesson.completed} onChange={() => toggleLessonComplete(unitId, lesson.id)} />
-        <p className={`flex-1 font-semibold ${lesson.completed ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}>
-          {lesson.title}
-        </p>
+<div className="group p-3 sm:p-4 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-200">
+  {/* الصف العلوي: العنوان وصندوق الاختيار */}
+  <div className="flex items-start gap-3">
+    {/* منع انكماش صندوق الاختيار */}
+    <div className="flex-shrink-0 mt-0.5">
+      <CustomCheckbox 
+        checked={lesson.completed} 
+        onChange={() => toggleLessonComplete(unitId, lesson.id)} 
+      />
+    </div>
+    
+    <p 
+      className={`flex-1 text-sm sm:text-base font-semibold leading-snug transition-colors ${
+        lesson.completed 
+          ? 'line-through text-slate-400 dark:text-slate-500' 
+          : 'text-slate-700 dark:text-slate-200'
+      }`}
+    >
+      {lesson.title}
+    </p>
+  </div>
+  
+  {/* الصف السفلي: التحكم بالملاحظات ومستوى الثقة */}
+  {/* ms-8 تعني هامش من البداية بمقدار 2rem لمحاذاة العناصر تحت النص وليس تحت الـ Checkbox */}
+  <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-4 mt-2 ms-8 sm:ms-9">
+    
+    <div className="flex items-center gap-2">
+      <span className="text-xs font-medium text-slate-400 dark:text-slate-500">الثقة:</span>
+      <div className="flex gap-1">
+        {(Object.keys(ConfidenceLabels) as Confidence[]).map((level) => (
+          <button
+            key={level}
+            title={ConfidenceLabels[level]}
+            onClick={() => setConfidence(unitId, lesson.id, level)}
+            // تصغير الإيموجي من 2xl إلى text-lg للجوال
+            className={`text-lg sm:text-xl transition-transform duration-200 hover:scale-125 focus:outline-none ${
+              lesson.confidence === level ? 'scale-110' : 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0'
+            }`}
+          >
+            {level}
+          </button>
+        ))}
       </div>
-      
-      <div className="flex flex-wrap items-center justify-between gap-4 ms-12">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">الثقة:</span>
-          <div className="flex gap-1">
-            {(Object.keys(ConfidenceLabels) as Confidence[]).map((level) => (
-              <button
-                key={level}
-                title={ConfidenceLabels[level]}
-                onClick={() => setConfidence(unitId, lesson.id, level)}
-                className={`text-2xl transition-transform duration-200 hover:scale-125 ${lesson.confidence === level ? 'scale-110' : 'opacity-40 grayscale'}`}
-              >
-                {level}
-              </button>
-            ))}
-          </div>
-        </div>
-        
+    </div>
+    
+    <button
+      onClick={() => setIsNotesExpanded(!isNotesExpanded)}
+      className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors"
+    >
+      <FiEdit2 size={12} /> {/* تصغير أيقونة القلم */}
+      <span>{lesson.note ? 'تعديل' : 'ملاحظة'}</span>
+    </button>
+  </div>
+  
+  {/* منطقة كتابة الملاحظات */}
+  {isNotesExpanded && (
+    <div className="mt-3 ms-8 sm:ms-9 animate-fade-in space-y-2">
+      <textarea
+        value={noteText}
+        onChange={(e) => setNoteText(e.target.value)}
+        className="w-full p-2 text-xs sm:text-sm rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900/50 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 outline-none transition resize-none placeholder-slate-400"
+        rows={2}
+        placeholder="اكتب ملاحظاتك هنا..."
+      ></textarea>
+      <div className="flex justify-end">
         <button
-          onClick={() => setIsNotesExpanded(!isNotesExpanded)}
-          className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-teal-500 dark:hover:text-teal-400 font-medium transition-colors"
+          onClick={handleSaveNote}
+          className="px-3 py-1 bg-teal-500 hover:bg-teal-600 text-white rounded text-xs font-semibold shadow-sm transition-colors flex items-center gap-1"
         >
-          <FiEdit2 />
-          {lesson.note ? 'تعديل الملاحظات' : 'إضافة ملاحظات'}
+          <FiSave size={12} />
+          حفظ
         </button>
       </div>
-      
-      {isNotesExpanded && (
-        <div className="ms-12 space-y-2 animate-fade-in">
-          <textarea
-            value={noteText}
-            onChange={(e) => setNoteText(e.target.value)}
-            className="w-full p-2 rounded-md bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition"
-            rows={3}
-            placeholder="اكتب ملاحظاتك هنا..."
-          ></textarea>
-          <button
-            onClick={handleSaveNote}
-            className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors flex items-center gap-2 text-sm font-semibold"
-          >
-            <FiSave />
-            حفظ
-          </button>
-        </div>
-      )}
     </div>
+  )}
+</div>
   );
 };
 

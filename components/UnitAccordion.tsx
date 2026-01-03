@@ -22,31 +22,51 @@ const UnitAccordion: React.FC<{ unit: Unit }> = ({ unit }) => {
   }, [unit.lessons]);
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center text-right space-y-2 sm:space-y-0"
-      >
-        <div className="flex-1">
-          <h2 className="text-xl font-bold">{unit.title}</h2>
-        </div>
-        <div className="w-full sm:w-1/3 flex items-center gap-4">
-          <ProgressBar value={progress} />
-          <FiChevronDown className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} size={24} />
-        </div>
-      </button>
-      <div
-        className={`transition-all duration-500 ease-in-out ${
-          isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="border-t border-slate-200 dark:border-slate-700">
-          {unit.lessons.map(lesson => (
-            <LessonItem key={lesson.id} lesson={lesson} unitId={unit.id} />
-          ))}
-        </div>
-      </div>
+  <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300 mt-1">
+  <button
+    onClick={() => setIsOpen(!isOpen)}
+    className="w-full p-2.5 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center text-right gap-2 sm:gap-4"
+  >
+    {/* العنوان: خط صغير وواضح للجوال */}
+    <div className="flex-1 w-full sm:w-auto">
+      <h2 className="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100 leading-tight">
+        {unit.title}
+      </h2>
     </div>
+
+    {/* منطقة التقدم والأيقونة */}
+    <div className="w-full sm:w-1/3 flex items-center gap-2 sm:gap-4">
+      <div className="flex-1">
+        {/* تأكد من أن مكون ProgressBar نفسه مرن أو صغير الارتفاع */}
+        <ProgressBar value={progress} className="h-1.5 sm:h-2" /> 
+      </div>
+      
+      {/* تصغير الأيقونة في الجوال */}
+      <FiChevronDown 
+        className={`text-slate-500 dark:text-slate-400 transform transition-transform duration-300 flex-shrink-0 ${
+          isOpen ? 'rotate-180' : ''
+        }`} 
+        size={18} // حجم صغير وثابت (18px)
+      />
+    </div>
+  </button>
+
+  <div
+    className={`transition-all duration-500 ease-in-out ${
+      isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+    }`}
+  >
+    {/* خلفية مختلفة قليلاً للدروس لتمييزها */}
+    <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20">
+      {unit.lessons.map(lesson => (
+        // يمكنك تمرير props هنا لتصغير خط الدروس أيضاً إذا كان متاحاً في المكون
+        <div key={lesson.id} className="text-sm"> 
+           <LessonItem lesson={lesson} unitId={unit.id} />
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
   );
 };
 
